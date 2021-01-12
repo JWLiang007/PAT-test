@@ -28,6 +28,7 @@ int main()
         visited[i] = 0;
         scanf("%d", team + i);
         maxTeam[i]=team[i];
+        numOfPath[i] = 0;
     }
     int dist[nNode][nNode];
     for (size_t i = 0; i < nNode; i++)
@@ -81,23 +82,12 @@ int main()
                 {
                     maxTeam[i] = maxTeam[minI] + team[i];
                 }
-
-                if (i == dest)
-                {
-                    if (potential < result->minCost)
-                    {
-                        result->minCost = potential;
-                        // result->maxTeam = team[minI] + team[i] * (minI == i ? 0 : 1);
-                        result->numOfminCost = 1;
-                    }
-                    else
-                    {
-                        result->numOfminCost+=1;
-                    }
-                    result->maxTeam = maxTeam[i];
+                if(potential<oldVal){
+                    // result->maxTeam = team[minI] + team[i] * (minI == i ? 0 : 1);
+                    numOfPath[i]=numOfPath[minI]+1;
+                }else{
+                    result->numOfminCost+=1;
                 }
-
-                
             }
         }
     }
