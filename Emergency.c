@@ -4,24 +4,14 @@
 
 #define MAX 10000
 
-typedef struct record
-{
-    int maxTeam;
-    int minCost;
-    int numOfminCost;
-} record;
-
 int main()
 {
-    int nNode, nPath, source, dest, visitCount;
+    int nNode, nPath, source, dest;
     scanf("%d %d %d %d", &nNode, &nPath, &source, &dest);
     int visited[nNode];
     int team[nNode];
     int maxTeam[nNode];
     int numOfPath[nNode];
-    // visited = (int *)malloc(nNode * sizeof(int));
-    // team = (int *)malloc(nNode * sizeof(int));
-    // maxTeam = (int *)malloc(nNode * sizeof(int));
     // 读入各节点的救援人数，初始化节点未访问
     for (size_t i = 0; i < nNode; i++)
     {
@@ -45,14 +35,10 @@ int main()
     for (size_t i = 0; i < nPath; i++)
     {
         scanf("%d %d %d", &s, &t, &l);
-        dist[s][t] = l;
+        dist[s][t] = dist[t][s] = l;
     }
 
-    // visited[source] = 1;
-    record *result = (record *)malloc(sizeof(record));
-    result->maxTeam = 0;
-    result->minCost = MAX;
-    result->numOfminCost = 0;
+    numOfPath[source]=1;
 
     for (int j = 0; j < nNode; j++)
     {
@@ -77,20 +63,19 @@ int main()
             if (potential <= oldVal)
             {
                 dist[source][i] = potential;        
-                int temp = maxTeam[i];
                 if (maxTeam[minI] + team[i] > maxTeam[i])
                 {
                     maxTeam[i] = maxTeam[minI] + team[i];
                 }
                 if(potential<oldVal){
-                    // result->maxTeam = team[minI] + team[i] * (minI == i ? 0 : 1);
-                    numOfPath[i]=numOfPath[minI]+1;
+                    numOfPath[i]=numOfPath[minI];
                 }else{
-                    result->numOfminCost+=1;
+                    numOfPath[i]+=numOfPath[minI];
                 }
             }
         }
+        if(minI==dest) break;
     }
-    printf("%d %d\n",result->numOfminCost,result->maxTeam);
+    printf("%d %d\n",numOfPath[dest],maxTeam[dest]);
     return 0;
 }
