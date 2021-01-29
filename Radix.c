@@ -1,54 +1,104 @@
 #include <stdio.h>
+#include <string.h>
+#include <limits.h>
 
-long long calDecm(char digit[],int radix);
-int getDecm(char c);
+int getDigFrmChar(char c)
+{
+    int res;
+    if (c >= '0' && c <= '9')
+    {
+        res = c - '0';
+    }
+    else
+    {
+        res = c - 'a' + 10;
+    }
+    return res;
+}
+
+long long calDecm(char dig[], long long radix)
+{
+    long long res = 0;
+    int n ;
+    for (int i = 0; dig[i] != '\0'; i++)
+    {
+        n = getDigFrmChar(dig[i]);
+        if((LLONG_MAX - n) / radix < res) /* overflow */
+            return -1;
+        res = res * radix + n;
+
+    }
+    return res;
+
+}
+
+long long binsearch(char *s, long long n, long long rmin, long long rmax)
+{
+    long long r, m;
+    while(rmax >= rmin)
+    {
+        r = rmin + (rmax - rmin) / 2; /* avoid (rmin + rmax) overflow */
+        if((m = calDecm(s, r)) > n || m == -1)
+            rmax = r - 1;
+        else if(m < n)
+            rmin = r + 1;
+        else
+            return r;
+    }
+    return -1;
+}
+
+int minradix(char *s)
+{   /* Simply the largest digit in the number plus 1 */
+    char r;
+    for(r = '0'; *s; s++)
+        if(*s > r)
+            r = *s;
+    return getDigFrmChar(r) + 1;
+}
+
 int main()
 {
-    char digit1[10],digit2[10],*fir,*sec;
-    int flag,radix;
-    long long num1;
-    scanf("%s %s %d %d",digit1,digit2,&flag,&radix);
-    if(flag==1){
+
+    int flag;
+    long long radix, num1;
+    char digit1[11], digit2[11], *fir, *sec;
+    scanf("%s %s %d %lld", digit1, digit2, &flag, &radix);
+    if (flag == 1)
+    {
         fir = digit1;
         sec = digit2;
-    }else{
+    }
+    else if(flag == 2)
+    {
         fir = digit2;
         sec = digit1;
     }
-    num1=flag==1?calDecm(digit1,radix):calDecm(digit2,radix);
-    int s=2,t=35,mid;
-    while (s<=t)
-    {
-        mid = (s+t)/2;
-        if(num1==calDecm(sec,mid)) {
-            break;
-        }else if(num1<calDecm(sec,mid)){
-            t = mid - 1 ; 
-        }else{
-            s= mid + 1;
-        }
-    }
+    num1 = calDecm(fir, radix);
+    // int s = 0, temp;
+    long long s = minradix(sec);     
+    long long t = LLONG_MAX;
+    // for (int i = 0; sec[i] != '\0'; i++)
+    // {
+    //     temp = getDigFrmChar(sec[i]);
+    //     if (temp > s)
+    //     {
+    //         s = temp;
+    //     }
+    // }
+    // s = s + 1;
 
-    if(s<=t){
-        printf("%d",mid);
-    }else{
-        printf("%s","Impossible");
+    if(strlen(sec) == 1){
+        if(num1 == (s - 1)) printf("%d",s);
+        else printf("%s","Impossible");
+    }else 
+    {
+        long long r = binsearch(sec,num1,s,t) ;
+        if(r != -1)       printf("%lld", r);
+        else                    printf("Impossible");
     }
     
-    return 0;
-}
 
-long long  calDecm(char digit[],int radix){
-	int result = 0;
-	for(int i =0;digit[i]!='\0';i++){
-		result=result*radix+getDecm(digit[i]);
-	}
-    return result;
-}
-int  getDecm(char c){
-	if(c>='0'&&c<='9'){
-		return c-'0';
-	}else if(c>='a'&&c<='z'){
-		return 10 + c -'a';
-	}
+
+    return 0;
 }
