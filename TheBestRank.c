@@ -13,7 +13,7 @@ typedef struct info
 
 typedef enum subj
 {
-    C,
+    C=0,
     M,
     E,
     A
@@ -23,15 +23,17 @@ char symbol[] ={'C','M','E','A'};
 
 void subjSort(int (*subj)[SIZE])
 {
-    int rank;
+    int rank,cnt;
     for (int i = 0; i < 4; i++)
     {
-        rank = 1;
+        rank = 0;
         for (int j = SIZE-1; j >= 0; j--)
         {
             if (subj[i][j] != 0)
             {
-                subj[i][j] = rank++;
+                cnt = subj[i][j];
+                subj[i][j] = rank+1;
+                rank += cnt;
             }
         }
     }
@@ -51,8 +53,8 @@ int main()
     for (int i = 0; i < n; i++)
     {
         scanf("%s %d %d %d", id, &gradeC, &gradeM, &gradeE);
-        gradeA = (gradeC + gradeM + gradeE) / 3;
-        std = (malloc)(sizeof(info));
+        gradeA = (gradeC + gradeM + gradeE + 1) / 3;
+        std = (info *)malloc(sizeof(info));
         strcpy(std->ID, id);
         std->grade[C]=gradeC;
         std->grade[M]=gradeM;
@@ -65,29 +67,36 @@ int main()
         // col->grade[M] = gradeM;
         // col->grade[E] = gradeE;
         // col->grade[A] = gradeA;
-        subj[C][gradeC] = 1;
-        subj[M][gradeM] = 1;
-        subj[E][gradeE] = 1;
-        subj[A][gradeA] = 1;
+        subj[C][gradeC] += 1;
+        subj[M][gradeM] += 1;
+        subj[E][gradeE] += 1;
+        subj[A][gradeA] += 1;
     }
     subjSort(subj);
     for(int i = 0; i< m;i++){
         scanf("%s",id);
         info *p=list,*q;
-        int min;
+        int min=2*SIZE,idx;
         while(p->next!=NULL){
             q = p->next;
             if(strcmp(q->ID,id)==0){
-                min = subj[0][*(q->grade)];
-                for(int j = 1; j< 4; j++){
-                    if(subj[j][*(q->grade+j)] < min )
+                // min = subj[0][*(q->grade)];
+                for(int j = 3,count = 0; count < 4; count++,j = (j+1)%4){
+                    if(subj[j][*(q->grade+j)] < min ){
                         min = subj[j][*(q->grade+j)];
+                        idx=j;
+                    }
                 }
-                printf("%d %c",min,symbol[min]);
-                p->next = q->next;
-                free(q);
+                printf("%d %c\n",min,symbol[idx]);
+                break;
             }
-
+            p=p->next;
+        }
+        if(p->next==NULL && n>0){
+            printf("%s\n","N/A");
+        }else{
+            // p->next = q->next;
+            // free(q);
         }
     }
     
